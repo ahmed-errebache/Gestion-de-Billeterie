@@ -6,9 +6,12 @@ import org.springframework.stereotype.Component;
 /**
  * Règle « un CLIENT n'agit que pour son propre client, un ADMIN pour tous ».
  * Utilisée par la carte de fidélité (dans SecurityConfig) et par l'achat (clientId du corps).
+ * Nom de bean fixé : il est référencé par les expressions @PreAuthorize.
  */
-@Component
+@Component(ControleAccesClient.NOM_BEAN)
 public class ControleAccesClient {
+
+    public static final String NOM_BEAN = "controleAccesClient";
 
     public boolean peutAgirPour(Authentication authentification, Long clientId) {
         if (authentification == null || !authentification.isAuthenticated() || clientId == null) {
