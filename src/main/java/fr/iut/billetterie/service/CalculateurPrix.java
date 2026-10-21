@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 
 import org.springframework.stereotype.Component;
 
+import fr.iut.billetterie.domain.CarteFidelite;
+
 /**
  * Règle de prix d'un achat de billets, calculée uniquement côté serveur.
  * Une carte de fidélité active à la date de l'achat accorde 10 % de remise.
@@ -25,15 +27,11 @@ public class CalculateurPrix {
     }
 
     /**
-     * Une carte est active si acheteeLe <= maintenant < expireLe.
-     * Sans carte (dates nulles), aucune remise.
+     * Une carte est active maintenant (selon le Clock) si acheteeLe <= maintenant < expireLe ;
+     * la règle elle-même est portée par {@link CarteFidelite#estActiveA}. Sans carte, aucune remise.
      */
-    public boolean estCarteActive(LocalDateTime acheteeLe, LocalDateTime expireLe) {
-        if (acheteeLe == null || expireLe == null) {
-            return false;
-        }
-        LocalDateTime maintenant = LocalDateTime.now(clock);
-        return !maintenant.isBefore(acheteeLe) && maintenant.isBefore(expireLe);
+    public boolean estCarteActive(CarteFidelite carte) {
+        return carte != null && carte.estActiveA(LocalDateTime.now(clock));
     }
 
     public TarifAchat calculer(BigDecimal prixUnitaire, int quantite, boolean carteActive) {

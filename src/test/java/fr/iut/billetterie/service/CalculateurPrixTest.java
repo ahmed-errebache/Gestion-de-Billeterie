@@ -10,6 +10,10 @@ import java.time.ZoneOffset;
 
 import org.junit.jupiter.api.Test;
 
+import fr.iut.billetterie.domain.Adresse;
+import fr.iut.billetterie.domain.CarteFidelite;
+import fr.iut.billetterie.domain.Client;
+
 class CalculateurPrixTest {
 
     private static final LocalDateTime MAINTENANT = LocalDateTime.of(2026, 10, 21, 14, 0);
@@ -17,10 +21,11 @@ class CalculateurPrixTest {
 
     private final Clock horlogeFixe = Clock.fixed(MAINTENANT.toInstant(ZoneOffset.UTC), ZoneOffset.UTC);
     private final CalculateurPrix calculateur = new CalculateurPrix(horlogeFixe);
+    private final Client client = new Client("Camille Martin", "camille@example.org", new Adresse("12 rue des Lilas", "Nancy"));
 
     @Test
     void sansCarte_aucuneRemise() {
-        boolean active = calculateur.estCarteActive(null, null);
+        boolean active = calculateur.estCarteActive(null);
 
         TarifAchat tarif = calculateur.calculer(PRIX_50, 1, active);
 
@@ -31,8 +36,7 @@ class CalculateurPrixTest {
 
     @Test
     void carteActive_billetA50EstFactureA45() {
-        LocalDateTime acheteeLe = MAINTENANT.minusMonths(3);
-        boolean active = calculateur.estCarteActive(acheteeLe, acheteeLe.plusYears(1));
+        boolean active = calculateur.estCarteActive(new CarteFidelite(client, MAINTENANT.minusMonths(3)));
 
         TarifAchat tarif = calculateur.calculer(PRIX_50, 1, active);
 
@@ -43,8 +47,7 @@ class CalculateurPrixTest {
 
     @Test
     void carteExpiree_aucuneRemise() {
-        LocalDateTime acheteeLe = MAINTENANT.minusYears(2);
-        boolean active = calculateur.estCarteActive(acheteeLe, acheteeLe.plusYears(1));
+        boolean active = calculateur.estCarteActive(new CarteFidelite(client, MAINTENANT.minusYears(2)));
 
         TarifAchat tarif = calculateur.calculer(PRIX_50, 1, active);
 
@@ -54,12 +57,12 @@ class CalculateurPrixTest {
 
     @Test
     void carteExpirantExactementMaintenant_nEstPlusActive() {
-        assertThat(calculateur.estCarteActive(MAINTENANT.minusYears(1), MAINTENANT)).isFalse();
+        assertThat(calculateur.estCarteActive(new CarteFidelite(client, MAINTENANT.minusYears(1)))).isFalse();
     }
 
     @Test
     void carteAcheteeExactementMaintenant_estActive() {
-        assertThat(calculateur.estCarteActive(MAINTENANT, MAINTENANT.plusYears(1))).isTrue();
+        assertThat(calculateur.estCarteActive(new CarteFidelite(client, MAINTENANT))).isTrue();
     }
 
     @Test
