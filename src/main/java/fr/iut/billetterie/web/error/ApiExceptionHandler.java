@@ -4,6 +4,8 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.ObjectProvider;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,8 +30,12 @@ public class ApiExceptionHandler {
 
     private final Clock clock;
 
-    public ApiExceptionHandler(Clock clock) {
-        this.clock = clock;
+    /**
+     * L'horloge est optionnelle : dans une tranche de test (@WebMvcTest) le bean Clock de ClockConfig
+     * n'est pas chargé, et le gestionnaire d'erreurs ne doit pas empêcher le contexte de démarrer.
+     */
+    public ApiExceptionHandler(ObjectProvider<Clock> clock) {
+        this.clock = clock.getIfAvailable(Clock::systemDefaultZone);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
