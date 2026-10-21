@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -15,8 +16,11 @@ import org.springframework.security.web.SecurityFilterChain;
 /**
  * API sans état en HTTP Basic : lectures, inscription, documentation et santé publiques,
  * opérations de production et d'administration protégées par rôle.
+ * La sécurité par méthode (@PreAuthorize) vérifie les règles qui dépendent du corps de la requête,
+ * comme le client pour lequel un compte CLIENT achète.
  */
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Bean

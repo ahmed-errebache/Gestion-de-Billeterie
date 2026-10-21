@@ -14,8 +14,10 @@ import org.springframework.test.web.servlet.MockMvc;
 /**
  * Règles d'accès seules, sans contrôleur ni base : une requête autorisée qui n'atteint
  * aucun contrôleur répond 404, une requête refusée répond 401 ou 403 avant d'y arriver.
+ * {@code controllers} désigne une classe qui n'est pas un contrôleur : aucun contrôleur de
+ * l'application n'est chargé, le test reste indépendant des endpoints ajoutés ensuite.
  */
-@WebMvcTest
+@WebMvcTest(controllers = SecurityConfigTest.class)
 @Import({SecurityConfig.class, ComptesDemonstration.class, ControleAccesClient.class})
 class SecurityConfigTest {
 
