@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import fr.iut.billetterie.service.AchatService;
-import fr.iut.billetterie.web.dto.AchatReponse;
-import fr.iut.billetterie.web.dto.AchatRequete;
+import fr.iut.billetterie.web.dto.AchatRequest;
+import fr.iut.billetterie.web.dto.AchatResponse;
 import jakarta.validation.Valid;
 
 /** Vente de billets : le contrôleur valide l'entrée et délègue tout le métier à AchatService. */
@@ -27,8 +27,8 @@ public class AchatController {
     /** Un compte CLIENT n'achète que pour le client métier qui lui est rattaché (403 sinon). */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("@controleAccesClient.peutAgirPour(authentication, #requete.clientId())")
-    public AchatReponse acheter(@Valid @RequestBody AchatRequete requete) {
-        return AchatReponse.depuis(achatService.acheter(requete.concertId(), requete.clientId(), requete.quantite()));
+    @PreAuthorize("@controleAccesClient.peutAgirPour(authentication, #demande.clientId())")
+    public AchatResponse acheter(@Valid @RequestBody AchatRequest demande) {
+        return AchatResponse.depuis(achatService.acheter(demande.concertId(), demande.clientId(), demande.quantite()));
     }
 }

@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
  * Corps de POST /api/achats. Aucun prix n'est accepté : le montant est calculé par le serveur,
  * un champ de prix éventuellement envoyé est ignoré.
  */
-public record AchatRequete(
+public record AchatRequest(
         @NotNull(message = "L'identifiant du concert est obligatoire")
         Long concertId,
 
