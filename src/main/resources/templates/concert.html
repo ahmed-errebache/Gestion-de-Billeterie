@@ -14,7 +14,20 @@
         <p><strong>Places restantes :</strong>
             <span th:text="${concert.placesRestantes} + ' sur ' + ${concert.capacite}">0 sur 0</span></p>
         <p class="erreur" th:if="${concert.placesRestantes == 0}">Ce concert est complet.</p>
-        <!-- Le bouton d'achat sera ajouté avec les pages de vente -->
+        <p class="erreur" th:if="${erreurAchat}" th:text="${erreurAchat}">Erreur d'achat</p>
+        <div th:if="${concert.placesRestantes > 0}">
+            <form th:if="${compte != null and compte.clientId != null}" class="achat" method="post"
+                  th:action="@{/concerts/{id}/achat(id=${concert.id})}">
+                <label>Nombre de billets (1 à 6)
+                    <input type="number" name="quantite" min="1" max="6" value="1" required>
+                </label>
+                <button type="submit">Acheter</button>
+            </form>
+            <p th:if="${compte != null and compte.clientId == null}" class="vide">
+                Seul un compte client peut acheter des billets.</p>
+            <p th:if="${compte == null}">
+                <a th:href="@{/connexion}">Connectez-vous</a> avec un compte client pour acheter des billets.</p>
+        </div>
     </div>
 </main>
 <footer th:replace="~{fragments/layout :: pied}"></footer>

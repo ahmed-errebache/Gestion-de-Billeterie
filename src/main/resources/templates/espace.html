@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Mon espace')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: entete}"></header>
+<main>
+    <h1>Mon espace</h1>
+    <p class="succes" th:if="${succes}" th:text="${succes}">Succès</p>
+    <p class="erreur" th:if="${erreur}" th:text="${erreur}">Erreur</p>
+
+    <div class="carte">
+        <h2>Carte de fidélité</h2>
+        <div th:if="${carte != null}">
+            <p>Votre carte est <strong>active</strong> : 10 % de remise sur tous vos billets.</p>
+            <p>Achetée le <span th:text="${#temporals.format(carte.acheteeLe, 'dd/MM/yyyy')}">date</span>,
+                valable jusqu'au <span th:text="${#temporals.format(carte.expireLe, 'dd/MM/yyyy')}">date</span>.</p>
+        </div>
+        <div th:if="${carte == null}">
+            <p>Vous n'avez pas de carte active. Une carte est valable un an et donne 10 % de remise sur vos billets.</p>
+            <form method="post" th:action="@{/espace/carte-fidelite}">
+                <button type="submit">Acheter une carte de fidélité</button>
+            </form>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: pied}"></footer>
+</body>
+</html>

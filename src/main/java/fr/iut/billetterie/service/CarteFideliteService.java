@@ -3,6 +3,7 @@ package fr.iut.billetterie.service;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +34,14 @@ public class CarteFideliteService {
         this.clientRepository = clientRepository;
         this.carteFideliteRepository = carteFideliteRepository;
         this.clock = clock;
+    }
+
+    /** Carte active à l'instant présent (selon le Clock), pour l'afficher au client. */
+    @Transactional(readOnly = true)
+    public Optional<CarteFidelite> carteActive(Long clientId) {
+        LocalDateTime maintenant = LocalDateTime.now(clock);
+        return carteFideliteRepository
+                .findFirstByClientIdAndAcheteeLeLessThanEqualAndExpireLeAfter(clientId, maintenant, maintenant);
     }
 
     @Transactional

@@ -1,8 +1,10 @@
 package fr.iut.billetterie.security;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
@@ -104,5 +106,29 @@ class SecurityConfigTest {
     @Test
     void autresEndpointsActuator_proteges() throws Exception {
         mockMvc.perform(get("/actuator/env")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void pagesPubliques_accessiblesSansConnexion() throws Exception {
+        mockMvc.perform(get("/concerts")).andExpect(status().isNotFound());
+        mockMvc.perform(get("/concerts/1")).andExpect(status().isNotFound());
+        mockMvc.perform(get("/inscription")).andExpect(status().isNotFound());
+        mockMvc.perform(get("/connexion")).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void formulaireDInscription_protegeParCsrf() throws Exception {
+        mockMvc.perform(post("/inscription")).andExpect(status().isForbidden());
+        mockMvc.perform(post("/inscription").with(csrf())).andExpect(status().isNotFound());
+    }
+
+    @Test
+    void pageProtegee_anonyme_redirigeVersLaConnexion_sansBasic() throws Exception {
+        mockMvc.perform(get("/espace"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/connexion"));
+        // HTTP Basic ne sert que l'API : il n'ouvre pas les pages
+        mockMvc.perform(get("/espace").with(httpBasic("client", "client123")))
+                .andExpect(redirectedUrl("/connexion"));
     }
 }

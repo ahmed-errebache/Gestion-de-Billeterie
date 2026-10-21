@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Achat confirmé')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: entete}"></header>
+<main>
+    <div class="carte">
+        <h1>Achat confirmé</h1>
+        <p><strong>Code d'achat :</strong> <span th:text="${achat.code}">ACH-...</span></p>
+        <p><strong>Billets :</strong> <span th:text="${achat.quantite}">1</span>
+            à <span th:text="${#numbers.formatDecimal(achat.prixUnitaire, 1, 2)} + ' €'">0,00 €</span></p>
+        <p><strong>Remise fidélité :</strong>
+            <span th:text="${#numbers.formatDecimal(achat.tauxRemise * 100, 1, 0)} + ' %'">0 %</span></p>
+        <p><strong>Montant total :</strong>
+            <span th:text="${#numbers.formatDecimal(achat.montantTotal, 1, 2)} + ' €'">0,00 €</span></p>
+        <p><strong>Places restantes :</strong> <span th:text="${achat.placesRestantes}">0</span></p>
+        <p><a class="bouton" th:href="@{/concerts/{id}(id=${achat.concertId})}">Retour au concert</a></p>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: pied}"></footer>
+</body>
+</html>
