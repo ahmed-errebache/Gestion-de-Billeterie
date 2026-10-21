@@ -37,6 +37,7 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs", "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                         .requestMatchers("/error").permitAll()
+                        .requestMatchers("/", "/concerts", "/concerts/**", "/inscription", "/inscription/**", "/css/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/production/**").hasAnyRole("PRODUCTEUR", "ADMIN")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/clients/{id}/carte-fidelite").access((authentification, contexte) ->
