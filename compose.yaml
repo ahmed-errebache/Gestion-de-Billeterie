@@ -1,0 +1,22 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: billetterie-mysql
+    environment:
+      MYSQL_DATABASE: billetterie
+      MYSQL_USER: billetterie
+      # Mots de passe de développement uniquement, jamais ceux d'une production
+      MYSQL_PASSWORD: ${DB_PASSWORD:-billetterie}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-root}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  mysql_data:
