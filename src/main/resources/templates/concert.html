@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${concert.titre})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: entete}"></header>
+<main>
+    <p><a th:href="@{/concerts}">&larr; Tous les concerts</a></p>
+    <div class="carte">
+        <h1 th:text="${concert.titre}">Titre</h1>
+        <p><strong>Artiste :</strong> <span th:text="${concert.artiste}">Artiste</span></p>
+        <p><strong>Salle :</strong> <span th:text="${concert.salle} + ' (' + ${concert.ville} + ')'">Salle</span></p>
+        <p><strong>Date :</strong> <span th:text="${#temporals.format(concert.dateHeure, 'dd/MM/yyyy HH:mm')}">Date</span></p>
+        <p><strong>Prix unitaire :</strong> <span th:text="${#numbers.formatDecimal(concert.prixUnitaire, 1, 2)} + ' €'">Prix</span></p>
+        <p><strong>Places restantes :</strong>
+            <span th:text="${concert.placesRestantes} + ' sur ' + ${concert.capacite}">0 sur 0</span></p>
+        <p class="erreur" th:if="${concert.placesRestantes == 0}">Ce concert est complet.</p>
+        <!-- Le bouton d'achat sera ajouté avec les pages de vente -->
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: pied}"></footer>
+</body>
+</html>

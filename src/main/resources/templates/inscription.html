@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Inscription')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: entete}"></header>
+<main>
+    <h1>Inscription d'un client</h1>
+    <p>Une inscription est nécessaire avant tout achat de billets.</p>
+
+    <form class="formulaire" method="post" th:action="@{/inscription}" th:object="${form}">
+        <label>Nom
+            <input type="text" th:field="*{nom}">
+            <span class="erreur" th:if="${#fields.hasErrors('nom')}" th:errors="*{nom}">Erreur</span>
+        </label>
+        <label>E-mail
+            <input type="email" th:field="*{email}">
+            <span class="erreur" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Erreur</span>
+        </label>
+        <label>Rue
+            <input type="text" th:field="*{rue}">
+            <span class="erreur" th:if="${#fields.hasErrors('rue')}" th:errors="*{rue}">Erreur</span>
+        </label>
+        <label>Ville
+            <input type="text" th:field="*{ville}">
+            <span class="erreur" th:if="${#fields.hasErrors('ville')}" th:errors="*{ville}">Erreur</span>
+        </label>
+        <button type="submit">S'inscrire</button>
+    </form>
+</main>
+<footer th:replace="~{fragments/layout :: pied}"></footer>
+</body>
+</html>
