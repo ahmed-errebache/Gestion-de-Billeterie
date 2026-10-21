@@ -1,0 +1,5 @@
+# Scripts du Maven Wrapper : fins de ligne imposées pour fonctionner sous Linux (Docker) comme sous Windows
+mvnw      text eol=lf
+*.cmd     text eol=crlf
+*.sh      text eol=lf
+Dockerfile text eol=lf

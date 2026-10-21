@@ -18,5 +18,20 @@ services:
       timeout: 3s
       retries: 20
 
+  app:
+    build: .
+    container_name: billetterie-app
+    depends_on:
+      mysql:
+        condition: service_healthy   # l'application ne démarre qu'une fois MySQL prêt
+    environment:
+      # Dans le réseau Compose, MySQL est joignable par le nom du service
+      DB_URL: jdbc:mysql://mysql:3306/billetterie
+      DB_USER: billetterie
+      DB_PASSWORD: ${DB_PASSWORD:-billetterie}
+    ports:
+      - "8080:8080"
+    restart: on-failure
+
 volumes:
   mysql_data:
