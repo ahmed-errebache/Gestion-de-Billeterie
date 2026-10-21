@@ -75,9 +75,74 @@ Migration `V2__donnees_demo.sql` : 2 artistes, 2 salles (dont « Le Petit Théâ
 | `ConcertServiceTest` (service, horloge figée) | Non |
 | `ConcertRepositoryJpaTest` (recherche filtrée, somme des billets vendus) | Oui |
 | `MySqlIntegrationTest` (migrations, contraintes, transaction) | Oui |
+| `CalculateurPrixTest`, `AchatServiceTest`, `CarteFideliteServiceTest` (prix, remise, jauge, ordre du verrou) | Non |
+| `SecurityConfigTest`, `AchatControllerTest`, `CarteFideliteControllerTest` (MVC et sécurité : 201, 400, 401, 403) | Non |
+| `VenteConcurrenteIntegrationTest` (deux achats simultanés, fidélité sur MySQL) | Oui |
 
 Les dates sont pilotées par un `Clock` injecté (`ClockConfig`), jamais par `sleep`.
 
-## Comptes de démonstration, sécurité, fidélité et concurrence
-*(à compléter par Lucas : comptes HTTP Basic et mots de passe de démonstration, règle de fidélité à 10 %,
-décision de concurrence avec verrou pessimiste et ordre des opérations.)*
+## Comptes de démonstration
+Authentification **HTTP Basic**. Ces comptes de démonstration sont séparés de l'inscription des clients :
+`POST /api/clients` crée un client métier, pas un compte de connexion.
+
+| Identifiant | Mot de passe | Rôle | Client métier rattaché |
+|---|---|---|---|
+| `client` | `client123` | CLIENT | client 1 (Camille Martin) |
+| `producteur` | `producteur123` | PRODUCTEUR | aucun |
+| `admin` | `admin123` | ADMIN | aucun |
+
+Seuls les hachages **BCrypt** figurent dans le code (`ComptesDemonstration`) ; les mots de passe en clair ne sont écrits qu'ici.
+
+```powershell
+curl.exe -u client:client123 -H "Content-Type: application/json" -d '{\"concertId\":2,\"clientId\":1,\"quantite\":2}' http://localhost:8080/api/achats
+curl.exe -u client:client123 -X POST http://localhost:8080/api/clients/1/carte-fidelite
+```
+
+## Sécurité
+- API sans état : HTTP Basic, aucune session. Le CSRF est désactivé, il ne protège que les sessions par cookie.
+- Routes publiques : lectures des concerts, inscription d'un client, OpenAPI, Swagger UI, `/actuator/health`.
+  Les autres endpoints Actuator ne sont pas exposés.
+- `/api/production/**` : PRODUCTEUR ou ADMIN. `/api/admin/**` : ADMIN. `POST /api/achats` : CLIENT.
+- **Identité de sécurité et client métier sont reliés explicitement, jamais confondus** : le compte
+  (`CompteBilletterie`) porte un `clientId`, l'entité `Client` ne connaît pas les comptes.
+  `ControleAccesClient` applique la règle « un CLIENT n'agit que pour son propre client, un ADMIN pour tous » :
+  - carte de fidélité : vérifiée sur le `{id}` du chemin dans `SecurityConfig` ;
+  - achat : vérifiée sur le `clientId` du corps par `@PreAuthorize`.
+
+  Un client qui agit pour un autre client reçoit 403.
+
+## Règle de fidélité
+- `POST /api/clients/{id}/carte-fidelite` vend une carte valable **exactement un an** : `expireLe = acheteeLe + 1 an`
+  (une carte achetée le 29 février expire le 28 février suivant).
+- **Une seule carte active par client** : une deuxième demande reçoit 409 `CARTE_DEJA_ACTIVE`.
+- Une carte est active si `acheteeLe <= maintenant < expireLe`. Une carte active à la date de l'achat applique
+  **10 %** de remise ; une carte expirée n'en applique aucune.
+- Le serveur calcule seul le montant : `BigDecimal`, arrondi à deux décimales (`HALF_UP`). Un prix envoyé par le
+  client est ignoré. Exemple : billet à 50,00 €, carte active → **45,00 €** ; carte expirée → **50,00 €**.
+- « Maintenant » vient du `Clock` injecté : les tests figent l'horloge au lieu d'attendre.
+
+## Décision de concurrence : verrou pessimiste
+La vente (`AchatService.acheter`) est **une seule transaction**, dans cet ordre :
+
+1. **verrou sur le concert** : `SELECT … FOR UPDATE` (`ConcertRepository.findByIdPourVente`) ;
+2. contrôle du client (il doit être inscrit) ;
+3. somme des billets déjà vendus, lue sous verrou ;
+4. contrôle de la jauge : demande supérieure aux places restantes → 409 `JAUGE_INSUFFISANTE` ;
+5. calcul de la remise ;
+6. enregistrement de l'achat avec un code unique.
+
+**Pourquoi un verrou pessimiste.** Deux ventes du même concert, sur deux threads ou deux instances de l'application,
+sont sérialisées par MySQL : la seconde attend la fin de la première, puis lit la somme à jour. Une synchronisation
+en mémoire ne protégerait pas deux instances. Un verrou optimiste aurait obligé à rejouer la vente en cas de conflit,
+alors que les conflits sont attendus quand un concert se remplit.
+
+**Pourquoi le verrou en premier.** En REPEATABLE READ (niveau par défaut de MySQL), une lecture ordinaire faite avant
+le verrou fige un instantané : la somme lue ensuite pourrait être périmée et autoriser une survente.
+
+**Aucun achat partiel** : toute exception annule la transaction. Le verrou ne bloque que les ventes du même concert.
+La carte de fidélité suit le même principe avec un verrou sur le client (`ClientRepository.findByIdPourCarte`),
+pour garantir une seule carte active même avec deux demandes simultanées.
+
+**Preuve par le test** : `VenteConcurrenteIntegrationTest` rejoue cinq fois le scénario du sujet sur MySQL réel
+(5 places restantes, deux achats simultanés de 4 billets) : un seul réussit, l'autre reçoit 409. Si l'on remplace
+temporairement le verrou par une lecture simple, les cinq répétitions échouent par survente.
