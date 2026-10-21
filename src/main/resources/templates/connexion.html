@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Connexion')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: entete}"></header>
+<main>
+    <h1>Connexion</h1>
+    <p class="erreur" th:if="${param.erreur}">Identifiant ou mot de passe incorrect.</p>
+
+    <form class="formulaire" method="post" th:action="@{/connexion}">
+        <label>Identifiant
+            <input type="text" name="username" autocomplete="username" required autofocus>
+        </label>
+        <label>Mot de passe
+            <input type="password" name="password" autocomplete="current-password" required>
+        </label>
+        <button type="submit">Se connecter</button>
+    </form>
+    <p class="vide">Comptes de démonstration : voir le README.</p>
+</main>
+<footer th:replace="~{fragments/layout :: pied}"></footer>
+</body>
+</html>

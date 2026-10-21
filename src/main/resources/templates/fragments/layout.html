@@ -11,7 +11,11 @@
     <a class="marque" th:href="@{/concerts}">Billetterie de concerts</a>
     <a th:href="@{/concerts}">Concerts</a>
     <a th:href="@{/inscription}">Inscription</a>
-    <!-- Les liens Connexion et Achat seront ajoutés avec les pages de vente -->
+    <a th:if="${compte != null and compte.clientId != null}" th:href="@{/espace}">Mon espace</a>
+    <a th:if="${compte == null}" th:href="@{/connexion}">Connexion</a>
+    <form th:if="${compte != null}" class="deconnexion" method="post" th:action="@{/deconnexion}">
+        <button type="submit" th:text="'Déconnexion (' + ${compte.username} + ')'">Déconnexion</button>
+    </form>
 </header>
 <footer class="pied" th:fragment="pied">
     BUT3 Informatique - R5.08 Qualité du développement

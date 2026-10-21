@@ -18,3 +18,7 @@ th { background:#eef0f8; }
 .erreur { color:#b91c1c; font-size:.85rem; }
 .carte { background:#fff; border:1px solid var(--bord); border-radius:8px; padding:1rem 1.2rem; }
 .vide { color:#6b7280; font-style:italic; }
+.succes { color:#047857; font-weight:600; }
+.entete form.deconnexion { margin:0; }
+.entete form.deconnexion button { background:transparent; border:1px solid #fff; padding:.3rem .7rem; font-size:.9rem; }
+form.achat { display:flex; gap:.8rem; align-items:flex-end; margin-top:1rem; }
