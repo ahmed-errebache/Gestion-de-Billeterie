@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Concerts')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: entete}"></header>
+<main>
+    <h1>Concerts à venir</h1>
+
+    <form class="filtres" method="get" th:action="@{/concerts}">
+        <label>Du <input type="date" name="du" th:value="${du}"></label>
+        <label>Au <input type="date" name="au" th:value="${au}"></label>
+        <label>Artiste <input type="text" name="artiste" th:value="${artiste}" placeholder="Nom de l'artiste"></label>
+        <button type="submit">Filtrer</button>
+    </form>
+
+    <p class="vide" th:if="${#lists.isEmpty(concerts)}">Aucun concert ne correspond à ces critères.</p>
+
+    <table th:unless="${#lists.isEmpty(concerts)}">
+        <thead>
+        <tr><th>Concert</th><th>Artiste</th><th>Lieu</th><th>Date</th><th>Prix</th><th></th></tr>
+        </thead>
+        <tbody>
+        <tr th:each="c : ${concerts}">
+            <td th:text="${c.titre}">Titre</td>
+            <td th:text="${c.artiste}">Artiste</td>
+            <td th:text="${c.salle} + ' (' + ${c.ville} + ')'">Salle</td>
+            <td th:text="${#temporals.format(c.dateHeure, 'dd/MM/yyyy HH:mm')}">Date</td>
+            <td th:text="${#numbers.formatDecimal(c.prixUnitaire, 1, 2)} + ' €'">Prix</td>
+            <td><a th:href="@{/concerts/{id}(id=${c.id})}">Détail</a></td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+<footer th:replace="~{fragments/layout :: pied}"></footer>
+</body>
+</html>

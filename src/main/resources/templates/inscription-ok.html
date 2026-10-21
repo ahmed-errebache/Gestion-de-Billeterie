@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Inscription confirmée')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: entete}"></header>
+<main>
+    <div class="carte">
+        <h1>Inscription enregistrée</h1>
+        <p>Merci <strong th:text="${client.nom}">Nom</strong>, votre inscription est bien prise en compte
+            (e-mail : <span th:text="${client.email}">email</span>).</p>
+        <p><a class="bouton" th:href="@{/concerts}">Voir les concerts</a></p>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: pied}"></footer>
+</body>
+</html>

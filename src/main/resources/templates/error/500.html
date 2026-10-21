@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Erreur')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: entete}"></header>
+<main>
+    <div class="carte">
+        <h1>Une erreur est survenue</h1>
+        <p>Le service a rencontré un problème. Réessayez dans un instant.</p>
+        <p><a class="bouton" th:href="@{/concerts}">Retour aux concerts</a></p>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: pied}"></footer>
+</body>
+</html>

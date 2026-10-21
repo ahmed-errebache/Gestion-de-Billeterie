@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(titre)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${titre} + ' - Billetterie'">Billetterie</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<header class="entete" th:fragment="entete">
+    <a class="marque" th:href="@{/concerts}">Billetterie de concerts</a>
+    <a th:href="@{/concerts}">Concerts</a>
+    <a th:href="@{/inscription}">Inscription</a>
+    <!-- Les liens Connexion et Achat seront ajoutés avec les pages de vente -->
+</header>
+<footer class="pied" th:fragment="pied">
+    BUT3 Informatique - R5.08 Qualité du développement
+</footer>
+</body>
+</html>
